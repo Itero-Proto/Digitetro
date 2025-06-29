@@ -175,6 +175,9 @@ function playerReset() {
     clearInterval(timerInterval);
     return; // Не сбрасываем игру сразу
   }
+  else {
+    startTimer(); // Запускаем таймер для новой фигуры
+  }
 }
 function saveHighscore(score, time) {
   const highscores = JSON.parse(localStorage.getItem('highscores') || '[]');
