@@ -13,3 +13,20 @@ canvas {
   display: block;
   margin: 20px auto;
 }
+
+#controls {
+  margin: 20px auto;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+#controls button {
+  padding: 10px 20px;
+  font-size: 24px;
+  background-color: #333;
+  color: white;
+  border: 1px solid white;
+  border-radius: 8px;
+}
