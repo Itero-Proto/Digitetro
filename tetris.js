@@ -27,7 +27,7 @@ function collide(arena, player) {
   for (let y = 0; y < m.length; ++y) {
     for (let x = 0; x < m[y].length; ++x) {
       if (m[y][x] !== 0 &&
-         (arena[y + o.y] &&
+        (arena[y + o.y] &&
           arena[y + o.y][x + o.x]) !== 0) {
         return true;
       }
@@ -96,8 +96,8 @@ function drawMatrix(matrix, offset) {
       if (value !== 0) {
         context.fillStyle = colors[value];
         context.fillRect(x + offset.x,
-                         y + offset.y,
-                         1, 1);
+          y + offset.y,
+          1, 1);
       }
     });
   });
@@ -107,7 +107,7 @@ function draw() {
   context.fillStyle = '#000';
   context.fillRect(0, 0, canvas.width, canvas.height);
 
-  drawMatrix(arena, {x: 0, y: 0});
+  drawMatrix(arena, { x: 0, y: 0 });
   drawMatrix(player.matrix, player.pos);
 }
 
@@ -132,6 +132,18 @@ function playerDrop() {
   }
   dropCounter = 0;
 }
+function playerHardDrop() {
+  while (!collide(arena, player)) {
+    player.pos.y++;
+  }
+  player.pos.y--; // последний шаг был лишним
+  merge(arena, player);
+  playerReset();
+  arenaSweep();
+  updateScore();
+  dropCounter = 0;
+}
+
 
 function playerMove(dir) {
   player.pos.x += dir;
@@ -145,7 +157,7 @@ function playerReset() {
   player.matrix = createPiece(pieces[pieces.length * Math.random() | 0]);
   player.pos.y = 0;
   player.pos.x = (arena[0].length / 2 | 0) -
-                 (player.matrix[0].length / 2 | 0);
+    (player.matrix[0].length / 2 | 0);
   if (collide(arena, player)) {
     arena.forEach(row => row.fill(0));
     player.score = 0;
@@ -175,9 +187,9 @@ function rotate(matrix, dir) {
         matrix[x][y],
         matrix[y][x],
       ] = [
-        matrix[y][x],
-        matrix[x][y],
-      ];
+          matrix[y][x],
+          matrix[x][y],
+        ];
     }
   }
 
@@ -213,12 +225,16 @@ document.addEventListener('keydown', event => {
     playerMove(1);
   } else if (event.keyCode === 40) {
     playerDrop();
+  } else if (event.keyCode === 32) {
+    playerHardDrop(); // пробел
   } else if (event.keyCode === 81) {
     playerRotate(-1);
   } else if (event.keyCode === 87) {
     playerRotate(1);
   }
 });
+
+document.getElementById('hardDrop').addEventListener('click', playerHardDrop);
 
 const colors = [
   null,
@@ -234,7 +250,7 @@ const colors = [
 const arena = createMatrix(12, 20);
 
 const player = {
-  pos: {x: 0, y: 0},
+  pos: { x: 0, y: 0 },
   matrix: null,
   score: 0,
 };
