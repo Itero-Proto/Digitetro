@@ -283,11 +283,12 @@ showScoresButton.addEventListener('click', () => {
 
     isPaused = true;
     modal.style.display = 'flex'; // Показываем окно
-  } else {
-    // Закрываем рекорды и продолжаем игру
-    isPaused = false;
-    modal.style.display = 'none'; // Скрываем окно
   }
+
+});
+document.getElementById('closeModalBtn').addEventListener('click', () => {
+  document.getElementById('modalOverlay').style.display = 'none';
+  isPaused = false;
 });
 
 
