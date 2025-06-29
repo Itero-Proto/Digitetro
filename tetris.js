@@ -22,9 +22,7 @@ function arenaSweep() {
     player.score += rowCount * 10;
     rowCount *= 2;
   }
-  player.score += rowCount * 10;
-  rowCount *= 2;
-  updateScore(); // Добавьте эту строку, если еще нет
+  updateScore(); // Только обновление отображения
 }
 
 function collide(arena, player) {
@@ -270,20 +268,26 @@ const user_id = tg.initDataUnsafe.user.id;
 
 async function sendScore(score) {
   try {
-    const tg = window.Telegram.WebApp;
-    if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
-      await tg.sendData(JSON.stringify({
-        user_id: tg.initDataUnsafe.user.id,
-        score: score,
-        username: tg.initDataUnsafe.user.username || 'unknown',
-        first_name: tg.initDataUnsafe.user.first_name || 'Player'
+    if (window.Telegram && window.Telegram.WebApp) {
+      const tg = window.Telegram.WebApp;
+      const user = tg.initDataUnsafe?.user || {};
+
+      // Отправляем данные через Telegram WebApp
+      tg.sendData(JSON.stringify({
+        user_id: user.id,
+        username: user.username || 'unknown',
+        first_name: user.first_name || 'Player',
+        score: score
       }));
-      console.log("Score sent to bot:", score);
-    } else {
-      console.error("Telegram WebApp data not available");
+
+      console.log("Score sent via Telegram WebApp:", score);
+      return true;
     }
+    console.error("Telegram WebApp not available");
+    return false;
   } catch (error) {
     console.error("Error sending score:", error);
+    return false;
   }
 }
 
