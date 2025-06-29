@@ -1,4 +1,7 @@
-
+// В начале скрипта добавьте:
+const isTelegramWebApp = () => {
+  return window.Telegram && window.Telegram.WebApp;
+};
 const canvas = document.getElementById('tetris');
 const context = canvas.getContext('2d');
 context.scale(20, 20);
@@ -19,6 +22,9 @@ function arenaSweep() {
     player.score += rowCount * 10;
     rowCount *= 2;
   }
+  player.score += rowCount * 10;
+  rowCount *= 2;
+  updateScore(); // Добавьте эту строку, если еще нет
 }
 
 function collide(arena, player) {
@@ -144,10 +150,14 @@ function playerReset() {
   const pieces = 'TJLOSZI';
   player.matrix = createPiece(pieces[pieces.length * Math.random() | 0]);
   player.pos.y = 0;
-  player.pos.x = (arena[0].length / 2 | 0) -
-    (player.matrix[0].length / 2 | 0);
+  player.pos.x = (arena[0].length / 2 | 0) - (player.matrix[0].length / 2 | 0);
+
   if (collide(arena, player)) {
     arena.forEach(row => row.fill(0));
+    // Отправляем результат перед сбросом счета
+    if (player.score > 0) {
+      sendScore(player.score);
+    }
     player.score = 0;
     updateScore();
   }
@@ -258,17 +268,23 @@ document.getElementById('rotate').addEventListener('click', () => playerRotate(1
 const tg = window.Telegram.WebApp;
 const user_id = tg.initDataUnsafe.user.id;
 
-// Отправляем рекорд боту
 async function sendScore(score) {
-  const response = await fetch("https://itero-proto.github.io/Digitetro/", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      user_id: user_id,
-      score: score
-    })
-  });
-  return response.json();
+  try {
+    const tg = window.Telegram.WebApp;
+    if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
+      await tg.sendData(JSON.stringify({
+        user_id: tg.initDataUnsafe.user.id,
+        score: score,
+        username: tg.initDataUnsafe.user.username || 'unknown',
+        first_name: tg.initDataUnsafe.user.first_name || 'Player'
+      }));
+      console.log("Score sent to bot:", score);
+    } else {
+      console.error("Telegram WebApp data not available");
+    }
+  } catch (error) {
+    console.error("Error sending score:", error);
+  }
 }
 
 // Пример вызова (после Game Over)
