@@ -270,17 +270,26 @@ document.getElementById('drop').addEventListener('click', playerDrop);
 document.getElementById('rotate').addEventListener('click', () => playerRotate(1));
 document.getElementById('hardDrop').addEventListener('click', playerHardDrop);
 
-document.getElementById('showScores').addEventListener('click', () => {
-  const modal = document.getElementById('modalOverlay');
-  const scores = JSON.parse(localStorage.getItem('highscores') || '[]');
-  const display = scores.map((entry, i) =>
-    `${i + 1}. ${entry.score} pts — ${entry.time}s`).join('\n');
+const showScoresButton = document.getElementById('showScores');
+const modal = document.getElementById('modalOverlay');
 
-  document.getElementById('highscores').innerText = display || 'Нет рекордов.';
+showScoresButton.addEventListener('click', () => {
+  if (!isPaused) {
+    // Показываем рекорды и ставим игру на паузу
+    const scores = JSON.parse(localStorage.getItem('highscores') || '[]');
+    const display = scores.map((entry, i) =>
+      `${i + 1}. ${entry.score} pts — ${entry.time}s`).join('\n');
+    document.getElementById('highscores').innerText = display || 'Нет рекордов.';
 
-  isPaused = !isPaused; // переключаем паузу
-  modal.style.display = isPaused ? 'block' : 'none';
+    isPaused = true;
+    modal.style.display = 'flex'; // Показываем окно
+  } else {
+    // Закрываем рекорды и продолжаем игру
+    isPaused = false;
+    modal.style.display = 'none'; // Скрываем окно
+  }
 });
+
 
 
 const colors = [
