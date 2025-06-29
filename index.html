@@ -10,16 +10,8 @@
 
 <body>
   <div id="gameContainer">
-    <button id="showScores">🏆 Рекорды</button>
+    <canvas id="tetris" width="240" height="400"></canvas>
   </div>
-
-  <div id="modalOverlay">
-    <div id="highscoreModal">
-      <button id="closeModalBtn">✖</button>
-      <pre id="highscores">Загрузка...</pre>
-    </div>
-  </div>
-
 
   <div id="score">Score: 0</div>
   <div id="time">Time: 0s</div>
@@ -33,6 +25,8 @@
     <button id="drop">⬇️</button>
     <button id="hardDrop">⏬</button>
   </div>
+  <div id="highscores" style="display:none; margin-top: 10px;"></div>
+
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <script src="tetris.js"></script>
 </body>
