@@ -48,7 +48,7 @@ canvas {
   align-items: flex-start;
   /* было: center */
   justify-content: center;
-  padding-top: 60px;
+  padding-top: 30px;
   /* отступ сверху */
   z-index: 10;
 }
