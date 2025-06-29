@@ -1,13 +1,12 @@
+
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Tetris Telegram</title>
   <link rel="stylesheet" href="style.css" />
 </head>
-
 <body>
   <h1>Tetris</h1>
   <canvas id="tetris" width="240" height="400"></canvas>
@@ -17,20 +16,8 @@
     <button id="rotate">🔄</button>
     <button id="right">➡️</button>
     <button id="drop">⬇️</button>
-    <button id="hardDrop">⏬</button> <!-- кнопка мгновенного падения -->
   </div>
-
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <script src="tetris.js"></script>
-  <div id="gameOver"
-    style="display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); color: white; flex-direction: column; justify-content: center; align-items: center;">
-    <h2>Game Over!</h2>
-    <p id="finalScore">Score: 0</p>
-    <p id="finalTime">Time: 0s</p>
-    <button id="restart"
-      style="padding: 10px 20px; font-size: 18px; background: #FF0D72; color: white; border: none; border-radius: 5px; cursor: pointer;">ЗАНОВО</button>
-  </div>
-  <div id="time">Time: 0s</div>
 </body>
-
 </html>
