@@ -1,4 +1,3 @@
-
 const canvas = document.getElementById('tetris');
 const context = canvas.getContext('2d');
 context.scale(20, 20);
@@ -27,7 +26,7 @@ function collide(arena, player) {
   for (let y = 0; y < m.length; ++y) {
     for (let x = 0; x < m[y].length; ++x) {
       if (m[y][x] !== 0 &&
-        (arena[y + o.y] &&
+         (arena[y + o.y] &&
           arena[y + o.y][x + o.x]) !== 0) {
         return true;
       }
@@ -96,8 +95,8 @@ function drawMatrix(matrix, offset) {
       if (value !== 0) {
         context.fillStyle = colors[value];
         context.fillRect(x + offset.x,
-          y + offset.y,
-          1, 1);
+                         y + offset.y,
+                         1, 1);
       }
     });
   });
@@ -107,7 +106,7 @@ function draw() {
   context.fillStyle = '#000';
   context.fillRect(0, 0, canvas.width, canvas.height);
 
-  drawMatrix(arena, { x: 0, y: 0 });
+  drawMatrix(arena, {x: 0, y: 0});
   drawMatrix(player.matrix, player.pos);
 }
 
@@ -144,19 +143,18 @@ function playerReset() {
   const pieces = 'TJLOSZI';
   player.matrix = createPiece(pieces[pieces.length * Math.random() | 0]);
   player.pos.y = 0;
-  player.pos.x = (arena[0].length / 2 | 0) - (player.matrix[0].length / 2 | 0);
-
+  player.pos.x = (arena[0].length / 2 | 0) -
+                 (player.matrix[0].length / 2 | 0);
   if (collide(arena, player)) {
     // Игра окончена
-    const finalScore = player.score;     // сохраняем очки перед сбросом
-    arena.forEach(row => row.fill(0));   // очищаем игровое поле
-    sendScoreToTelegram(finalScore);     // отправляем очки в Telegram
-    alert("Game Over! Your score: " + finalScore); // показываем alert (опционально)
-    player.score = 0;                    // сбрасываем очки
-    updateScore();                      // обновляем отображение очков
+    const finalScore = player.score;  // сохраняем очки
+    arena.forEach(row => row.fill(0));
+    sendScoreToTelegram(finalScore);
+    alert("Game Over! Your score: " + finalScore);
+    player.score = 0;
+    updateScore();
   }
 }
-
 
 function playerRotate(dir) {
   const pos = player.pos.x;
@@ -180,9 +178,9 @@ function rotate(matrix, dir) {
         matrix[x][y],
         matrix[y][x],
       ] = [
-          matrix[y][x],
-          matrix[x][y],
-        ];
+        matrix[y][x],
+        matrix[x][y],
+      ];
     }
   }
 
@@ -213,7 +211,7 @@ function update(time = 0) {
 
 function sendScoreToTelegram(score) {
   if (window.Telegram && Telegram.WebApp) {
-    Telegram.WebApp.sendData(JSON.stringify({ game: "tetris", score }));
+    Telegram.WebApp.sendData(JSON.stringify({game: "tetris", score}));
   }
 }
 
@@ -245,7 +243,7 @@ const colors = [
 const arena = createMatrix(12, 20);
 
 const player = {
-  pos: { x: 0, y: 0 },
+  pos: {x: 0, y: 0},
   matrix: null,
   score: 0,
 };
