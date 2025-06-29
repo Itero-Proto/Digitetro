@@ -132,7 +132,6 @@ function playerDrop() {
   }
   dropCounter = 0;
 }
-
 function playerHardDrop() {
   while (!collide(arena, player)) {
     player.pos.y++;
@@ -144,6 +143,7 @@ function playerHardDrop() {
   updateScore();
   dropCounter = 0;
 }
+
 
 function playerMove(dir) {
   player.pos.x += dir;
