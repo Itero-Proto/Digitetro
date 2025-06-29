@@ -30,7 +30,7 @@ function collide(arena, player) {
   for (let y = 0; y < m.length; ++y) {
     for (let x = 0; x < m[y].length; ++x) {
       if (m[y][x] !== 0 &&
-        (arena[y + o.y] &&
+         (arena[y + o.y] &&
           arena[y + o.y][x + o.x]) !== 0) {
         return true;
       }
@@ -99,8 +99,8 @@ function drawMatrix(matrix, offset) {
       if (value !== 0) {
         context.fillStyle = colors[value];
         context.fillRect(x + offset.x,
-          y + offset.y,
-          1, 1);
+                         y + offset.y,
+                         1, 1);
       }
     });
   });
@@ -110,7 +110,7 @@ function draw() {
   context.fillStyle = '#000';
   context.fillRect(0, 0, canvas.width, canvas.height);
 
-  drawMatrix(arena, { x: 0, y: 0 });
+  drawMatrix(arena, {x: 0, y: 0});
   drawMatrix(player.matrix, player.pos);
 }
 
@@ -270,28 +270,13 @@ document.getElementById('drop').addEventListener('click', playerDrop);
 document.getElementById('rotate').addEventListener('click', () => playerRotate(1));
 document.getElementById('hardDrop').addEventListener('click', playerHardDrop);
 
-const showScoresButton = document.getElementById('showScores');
-const modal = document.getElementById('modalOverlay');
-
-showScoresButton.addEventListener('click', () => {
-  if (!isPaused) {
-    // Показываем рекорды и ставим игру на паузу
-    const scores = JSON.parse(localStorage.getItem('highscores') || '[]');
-    const display = scores.map((entry, i) =>
-      `${i + 1}. ${entry.score} pts — ${entry.time}s`).join('\n');
-    document.getElementById('highscores').innerText = display || 'Нет рекордов.';
-
-    isPaused = true;
-    modal.style.display = 'flex'; // Показываем окно
-  }
-
+document.getElementById('showScores').addEventListener('click', () => {
+  const scores = JSON.parse(localStorage.getItem('highscores') || '[]');
+  const display = scores.map((entry, i) =>
+    `${i + 1}. ${entry.score} pts — ${entry.time}s`).join('\n');
+  document.getElementById('highscores').style.display = 'block';
+  document.getElementById('highscores').innerText = display || 'Нет рекордов.';
 });
-document.getElementById('closeModalBtn').addEventListener('click', () => {
-  document.getElementById('modalOverlay').style.display = 'none';
-  isPaused = false;
-});
-
-
 
 const colors = [
   null,
