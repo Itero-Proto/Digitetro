@@ -1,5 +1,6 @@
 let elapsedTime = 0;
 let timerInterval = null;
+let isPaused = false;
 
 const canvas = document.getElementById('tetris');
 const context = canvas.getContext('2d');
@@ -29,7 +30,7 @@ function collide(arena, player) {
   for (let y = 0; y < m.length; ++y) {
     for (let x = 0; x < m[y].length; ++x) {
       if (m[y][x] !== 0 &&
-         (arena[y + o.y] &&
+        (arena[y + o.y] &&
           arena[y + o.y][x + o.x]) !== 0) {
         return true;
       }
@@ -98,8 +99,8 @@ function drawMatrix(matrix, offset) {
       if (value !== 0) {
         context.fillStyle = colors[value];
         context.fillRect(x + offset.x,
-                         y + offset.y,
-                         1, 1);
+          y + offset.y,
+          1, 1);
       }
     });
   });
@@ -109,7 +110,7 @@ function draw() {
   context.fillStyle = '#000';
   context.fillRect(0, 0, canvas.width, canvas.height);
 
-  drawMatrix(arena, {x: 0, y: 0});
+  drawMatrix(arena, { x: 0, y: 0 });
   drawMatrix(player.matrix, player.pos);
 }
 
@@ -234,14 +235,18 @@ function update(time = 0) {
   const deltaTime = time - lastTime;
   lastTime = time;
 
-  dropCounter += deltaTime;
-  if (dropCounter > dropInterval) {
-    playerDrop();
+  if (!isPaused) {
+    dropCounter += deltaTime;
+    if (dropCounter > dropInterval) {
+      playerDrop();
+    }
+
+    draw();
   }
 
-  draw();
   requestAnimationFrame(update);
 }
+
 
 document.addEventListener('keydown', event => {
   if (event.keyCode === 37) {
@@ -266,12 +271,17 @@ document.getElementById('rotate').addEventListener('click', () => playerRotate(1
 document.getElementById('hardDrop').addEventListener('click', playerHardDrop);
 
 document.getElementById('showScores').addEventListener('click', () => {
+  const modal = document.getElementById('modalOverlay');
   const scores = JSON.parse(localStorage.getItem('highscores') || '[]');
   const display = scores.map((entry, i) =>
     `${i + 1}. ${entry.score} pts — ${entry.time}s`).join('\n');
-  document.getElementById('highscores').style.display = 'block';
+
   document.getElementById('highscores').innerText = display || 'Нет рекордов.';
+
+  isPaused = !isPaused; // переключаем паузу
+  modal.style.display = isPaused ? 'block' : 'none';
 });
+
 
 const colors = [
   null,
