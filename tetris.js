@@ -29,7 +29,7 @@ function collide(arena, player) {
   for (let y = 0; y < m.length; ++y) {
     for (let x = 0; x < m[y].length; ++x) {
       if (m[y][x] !== 0 &&
-         (arena[y + o.y] &&
+        (arena[y + o.y] &&
           arena[y + o.y][x + o.x]) !== 0) {
         return true;
       }
@@ -98,8 +98,8 @@ function drawMatrix(matrix, offset) {
       if (value !== 0) {
         context.fillStyle = colors[value];
         context.fillRect(x + offset.x,
-                         y + offset.y,
-                         1, 1);
+          y + offset.y,
+          1, 1);
       }
     });
   });
@@ -109,7 +109,7 @@ function draw() {
   context.fillStyle = '#000';
   context.fillRect(0, 0, canvas.width, canvas.height);
 
-  drawMatrix(arena, {x: 0, y: 0});
+  drawMatrix(arena, { x: 0, y: 0 });
   drawMatrix(player.matrix, player.pos);
 }
 
@@ -134,18 +134,18 @@ function playerDrop() {
   }
   dropCounter = 0;
 }
-
 function playerHardDrop() {
   while (!collide(arena, player)) {
     player.pos.y++;
   }
-  player.pos.y--;
+  player.pos.y--; // последний шаг был лишним
   merge(arena, player);
   playerReset();
   arenaSweep();
   updateScore();
   dropCounter = 0;
 }
+
 
 function playerMove(dir) {
   player.pos.x += dir;
@@ -166,34 +166,28 @@ function playerReset() {
     saveHighscore(player.score, elapsedTime);
     player.score = 0;
     updateScore();
+    elapsedTime = 0;
     clearInterval(timerInterval);
+  } else {
+    startTimer(); // начинается новая фигура, таймер идёт
   }
 }
-
-function startNewGame() {
-  elapsedTime = 0;
-  updateTimeDisplay();
-  if (timerInterval) clearInterval(timerInterval);
-  timerInterval = setInterval(() => {
-    elapsedTime++;
-    updateTimeDisplay();
-  }, 1000);
-  arena.forEach(row => row.fill(0));
-  player.score = 0;
-  updateScore();
-  playerReset();
-}
-
-function updateTimeDisplay() {
-  document.getElementById('time').innerText = 'Time: ' + elapsedTime + 's';
-}
-
 function saveHighscore(score, time) {
   const highscores = JSON.parse(localStorage.getItem('highscores') || '[]');
   highscores.push({ score, time });
   highscores.sort((a, b) => b.score - a.score);
   const top10 = highscores.slice(0, 10);
   localStorage.setItem('highscores', JSON.stringify(top10));
+}
+
+
+function startTimer() {
+  elapsedTime = 0;
+  if (timerInterval) clearInterval(timerInterval);
+  timerInterval = setInterval(() => {
+    elapsedTime++;
+    document.getElementById('time').innerText = 'Time: ' + elapsedTime + 's';
+  }, 1000);
 }
 
 function playerRotate(dir) {
@@ -214,7 +208,13 @@ function playerRotate(dir) {
 function rotate(matrix, dir) {
   for (let y = 0; y < matrix.length; ++y) {
     for (let x = 0; x < y; ++x) {
-      [matrix[x][y], matrix[y][x]] = [matrix[y][x], matrix[x][y]];
+      [
+        matrix[x][y],
+        matrix[y][x],
+      ] = [
+          matrix[y][x],
+          matrix[x][y],
+        ];
     }
   }
 
@@ -259,19 +259,7 @@ document.addEventListener('keydown', event => {
   }
 });
 
-document.getElementById('left').addEventListener('click', () => playerMove(-1));
-document.getElementById('right').addEventListener('click', () => playerMove(1));
-document.getElementById('drop').addEventListener('click', playerDrop);
-document.getElementById('rotate').addEventListener('click', () => playerRotate(1));
 document.getElementById('hardDrop').addEventListener('click', playerHardDrop);
-
-document.getElementById('showScores').addEventListener('click', () => {
-  const scores = JSON.parse(localStorage.getItem('highscores') || '[]');
-  const display = scores.map((entry, i) =>
-    `${i + 1}. ${entry.score} pts — ${entry.time}s`).join('\n');
-  document.getElementById('highscores').style.display = 'block';
-  document.getElementById('highscores').innerText = display || 'Нет рекордов.';
-});
 
 const colors = [
   null,
@@ -294,7 +282,15 @@ const player = {
 
 let dropCounter = 0;
 let dropInterval = 1000;
+
 let lastTime = 0;
 
-startNewGame();
+playerReset();
+updateScore();
 update();
+
+// Touch controls
+document.getElementById('left').addEventListener('click', () => playerMove(-1));
+document.getElementById('right').addEventListener('click', () => playerMove(1));
+document.getElementById('drop').addEventListener('click', playerDrop);
+document.getElementById('rotate').addEventListener('click', () => playerRotate(1));
