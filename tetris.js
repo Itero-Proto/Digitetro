@@ -1,6 +1,5 @@
 let elapsedTime = 0;
 let timerInterval = null;
-let isPaused = false;
 
 const canvas = document.getElementById('tetris');
 const context = canvas.getContext('2d');
@@ -235,18 +234,14 @@ function update(time = 0) {
   const deltaTime = time - lastTime;
   lastTime = time;
 
-  if (!isPaused) {
-    dropCounter += deltaTime;
-    if (dropCounter > dropInterval) {
-      playerDrop();
-    }
-
-    draw();
+  dropCounter += deltaTime;
+  if (dropCounter > dropInterval) {
+    playerDrop();
   }
 
+  draw();
   requestAnimationFrame(update);
 }
-
 
 document.addEventListener('keydown', event => {
   if (event.keyCode === 37) {
