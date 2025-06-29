@@ -91,7 +91,15 @@ function createPiece(type) {
     ];
   }
 }
+function showGameOver() {
+  document.getElementById('finalScore').textContent = 'Score: ' + player.score;
+  document.getElementById('finalTime').textContent = 'Time: ' + elapsedTime + 's';
+  document.getElementById('gameOver').style.display = 'flex';
+}
 
+function hideGameOver() {
+  document.getElementById('gameOver').style.display = 'none';
+}
 function drawMatrix(matrix, offset) {
   matrix.forEach((row, y) => {
     row.forEach((value, x) => {
@@ -161,18 +169,13 @@ function playerReset() {
   player.pos.x = (arena[0].length / 2 | 0) - (player.matrix[0].length / 2 | 0);
 
   if (collide(arena, player)) {
-    // Game over
     arena.forEach(row => row.fill(0));
     saveHighscore(player.score, elapsedTime);
-    player.score = 0;
-    updateScore();
-    elapsedTime = 0;
+    showGameOver(); // Показываем экран Game Over
     clearInterval(timerInterval);
-  } else {
-    startTimer(); // начинается новая фигура, таймер идёт
+    return; // Не сбрасываем игру сразу
   }
 }
-
 function saveHighscore(score, time) {
   const highscores = JSON.parse(localStorage.getItem('highscores') || '[]');
   highscores.push({ score, time });
@@ -243,7 +246,14 @@ function update(time = 0) {
   draw();
   requestAnimationFrame(update);
 }
-
+document.getElementById('restart').addEventListener('click', () => {
+  player.score = 0;
+  elapsedTime = 0;
+  updateScore();
+  hideGameOver();
+  playerReset();
+  startTimer();
+});
 document.addEventListener('keydown', event => {
   if (event.keyCode === 37) {
     playerMove(-1);
