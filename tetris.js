@@ -1,3 +1,5 @@
+let elapsedTime = 0;
+let timerInterval = null;
 
 const canvas = document.getElementById('tetris');
 const context = canvas.getContext('2d');
@@ -156,13 +158,37 @@ function playerReset() {
   const pieces = 'TJLOSZI';
   player.matrix = createPiece(pieces[pieces.length * Math.random() | 0]);
   player.pos.y = 0;
-  player.pos.x = (arena[0].length / 2 | 0) -
-    (player.matrix[0].length / 2 | 0);
+  player.pos.x = (arena[0].length / 2 | 0) - (player.matrix[0].length / 2 | 0);
+
   if (collide(arena, player)) {
+    // Game over
     arena.forEach(row => row.fill(0));
+    saveHighscore(player.score, elapsedTime);
     player.score = 0;
     updateScore();
+    elapsedTime = 0;
+    clearInterval(timerInterval);
+  } else {
+    startTimer(); // начинается новая фигура, таймер идёт
   }
+}
+
+function saveHighscore(score, time) {
+  const highscores = JSON.parse(localStorage.getItem('highscores') || '[]');
+  highscores.push({ score, time });
+  highscores.sort((a, b) => b.score - a.score);
+  const top10 = highscores.slice(0, 10);
+  localStorage.setItem('highscores', JSON.stringify(top10));
+}
+
+
+function startTimer() {
+  elapsedTime = 0;
+  if (timerInterval) clearInterval(timerInterval);
+  timerInterval = setInterval(() => {
+    elapsedTime++;
+    document.getElementById('time').innerText = 'Time: ' + elapsedTime + 's';
+  }, 1000);
 }
 
 function playerRotate(dir) {
@@ -269,3 +295,11 @@ document.getElementById('left').addEventListener('click', () => playerMove(-1));
 document.getElementById('right').addEventListener('click', () => playerMove(1));
 document.getElementById('drop').addEventListener('click', playerDrop);
 document.getElementById('rotate').addEventListener('click', () => playerRotate(1));
+
+document.getElementById('showScores').addEventListener('click', () => {
+  const scores = JSON.parse(localStorage.getItem('highscores') || '[]');
+  const display = scores.map((entry, i) =>
+    `${i + 1}. ${entry.score} pts — ${entry.time}s`).join('\n');
+  document.getElementById('highscores').style.display = 'block';
+  document.getElementById('highscores').innerText = display || 'Нет рекордов.';
+});
