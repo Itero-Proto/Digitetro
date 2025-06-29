@@ -172,13 +172,6 @@ function playerReset() {
     startTimer(); // начинается новая фигура, таймер идёт
   }
 }
-function saveHighscore(score, time) {
-  const highscores = JSON.parse(localStorage.getItem('highscores') || '[]');
-  highscores.push({ score, time });
-  highscores.sort((a, b) => b.score - a.score);
-  const top10 = highscores.slice(0, 10);
-  localStorage.setItem('highscores', JSON.stringify(top10));
-}
 
 
 function startTimer() {
