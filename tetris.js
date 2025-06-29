@@ -168,9 +168,17 @@ function playerReset() {
     updateScore();
     elapsedTime = 0;
     clearInterval(timerInterval);
-  } else {
-    startTimer(); // начинается новая фигура, таймер идёт
   }
+}
+
+function startNewGame() {
+  elapsedTime = 0;
+  updateTimeDisplay();
+  startTimer();
+  arena.forEach(row => row.fill(0));
+  player.score = 0;
+  updateScore();
+  playerReset();
 }
 
 function saveHighscore(score, time) {
@@ -181,15 +189,18 @@ function saveHighscore(score, time) {
   localStorage.setItem('highscores', JSON.stringify(top10));
 }
 
-
 function startTimer() {
-  elapsedTime = 0;
   if (timerInterval) clearInterval(timerInterval);
   timerInterval = setInterval(() => {
     elapsedTime++;
-    document.getElementById('time').innerText = 'Time: ' + elapsedTime + 's';
+    updateTimeDisplay();
   }, 1000);
 }
+
+function updateTimeDisplay() {
+  document.getElementById('time').innerText = 'Time: ' + elapsedTime + 's';
+}
+
 
 function playerRotate(dir) {
   const pos = player.pos.x;
@@ -286,8 +297,7 @@ let dropInterval = 1000;
 
 let lastTime = 0;
 
-playerReset();
-updateScore();
+startNewGame();
 update();
 
 // Touch controls
