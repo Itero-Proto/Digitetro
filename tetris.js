@@ -27,7 +27,7 @@ function collide(arena, player) {
   for (let y = 0; y < m.length; ++y) {
     for (let x = 0; x < m[y].length; ++x) {
       if (m[y][x] !== 0 &&
-         (arena[y + o.y] &&
+        (arena[y + o.y] &&
           arena[y + o.y][x + o.x]) !== 0) {
         return true;
       }
@@ -96,8 +96,8 @@ function drawMatrix(matrix, offset) {
       if (value !== 0) {
         context.fillStyle = colors[value];
         context.fillRect(x + offset.x,
-                         y + offset.y,
-                         1, 1);
+          y + offset.y,
+          1, 1);
       }
     });
   });
@@ -107,7 +107,7 @@ function draw() {
   context.fillStyle = '#000';
   context.fillRect(0, 0, canvas.width, canvas.height);
 
-  drawMatrix(arena, {x: 0, y: 0});
+  drawMatrix(arena, { x: 0, y: 0 });
   drawMatrix(player.matrix, player.pos);
 }
 
@@ -145,7 +145,7 @@ function playerReset() {
   player.matrix = createPiece(pieces[pieces.length * Math.random() | 0]);
   player.pos.y = 0;
   player.pos.x = (arena[0].length / 2 | 0) -
-                 (player.matrix[0].length / 2 | 0);
+    (player.matrix[0].length / 2 | 0);
   if (collide(arena, player)) {
     arena.forEach(row => row.fill(0));
     player.score = 0;
@@ -175,9 +175,9 @@ function rotate(matrix, dir) {
         matrix[x][y],
         matrix[y][x],
       ] = [
-        matrix[y][x],
-        matrix[x][y],
-      ];
+          matrix[y][x],
+          matrix[x][y],
+        ];
     }
   }
 
@@ -234,7 +234,7 @@ const colors = [
 const arena = createMatrix(12, 20);
 
 const player = {
-  pos: {x: 0, y: 0},
+  pos: { x: 0, y: 0 },
   matrix: null,
   score: 0,
 };
@@ -253,3 +253,25 @@ document.getElementById('left').addEventListener('click', () => playerMove(-1));
 document.getElementById('right').addEventListener('click', () => playerMove(1));
 document.getElementById('drop').addEventListener('click', playerDrop);
 document.getElementById('rotate').addEventListener('click', () => playerRotate(1));
+
+// Получаем user_id из Telegram WebApp
+const tg = window.Telegram.WebApp;
+const user_id = tg.initDataUnsafe.user.id;
+
+// Отправляем рекорд боту
+async function sendScore(score) {
+  const response = await fetch("https://itero-proto.github.io/Digitetro/", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      user_id: user_id,
+      score: score
+    })
+  });
+  return response.json();
+}
+
+// Пример вызова (после Game Over)
+sendScore(1000).then(data => {
+  console.log("Рекорд сохранён!");
+});
