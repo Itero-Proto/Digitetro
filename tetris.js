@@ -148,7 +148,6 @@ function playerReset() {
                  (player.matrix[0].length / 2 | 0);
   if (collide(arena, player)) {
     arena.forEach(row => row.fill(0));
-    sendScoreToTelegram(player.score);
     player.score = 0;
     updateScore();
   }
@@ -205,12 +204,6 @@ function update(time = 0) {
 
   draw();
   requestAnimationFrame(update);
-}
-
-function sendScoreToTelegram(score) {
-  if (window.Telegram && Telegram.WebApp) {
-    Telegram.WebApp.sendData(JSON.stringify({game: "tetris", score}));
-  }
 }
 
 document.addEventListener('keydown', event => {
