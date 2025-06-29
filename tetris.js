@@ -1,3 +1,21 @@
+// ===== 1. Добавьте этот код ПЕРВЫМ в файле =====
+// Подключаем Telegram WebApp API (если не загрузился автоматически)
+if (!window.Telegram?.WebApp) {
+  const script = document.createElement('script');
+  script.src = 'https://telegram.org/js/telegram-web-app.js';
+  document.head.appendChild(script);
+}
+
+// Ждём загрузки страницы и проверяем API
+document.addEventListener('DOMContentLoaded', () => {
+  if (!window.Telegram?.WebApp) {
+    alert("Ошибка: Запускайте игру только через Telegram!");
+    return;
+  }
+  
+  console.log("Telegram.WebApp инициализирован:", Telegram.WebApp);
+  Telegram.WebApp.ready(); // Сообщаем Telegram, что WebApp готов
+});
 const canvas = document.getElementById('tetris');
 const context = canvas.getContext('2d');
 context.scale(20, 20);
@@ -211,6 +229,7 @@ function update(time = 0) {
 
 function sendScoreToTelegram(score) {
   if (window.Telegram && Telegram.WebApp) {
+    console.log("Отправляю в Telegram:", {game: "tetris", score});
     Telegram.WebApp.sendData(JSON.stringify({game: "tetris", score}));
   }
 }
