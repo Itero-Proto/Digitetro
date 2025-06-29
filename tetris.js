@@ -235,7 +235,11 @@ function sendScoreToTelegram(score) {
 
   console.log("Отправка результата:", { game: "tetris", score });
   try {
-    Telegram.WebApp.sendData(JSON.stringify({ game: "tetris", score }));
+    Telegram.WebApp.sendData(JSON.stringify({
+      game: "tetris",
+      score: finalScore
+    }));
+
   } catch (e) {
     console.error("Ошибка отправки:", e);
   }
