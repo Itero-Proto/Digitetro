@@ -256,10 +256,7 @@ updateScore();
 update();
 
 // Touch controls
-document.getElementById('left').addEventListener('click', () => playerMove(-1));
-document.getElementById('right').addEventListener('click', () => playerMove(1));
-document.getElementById('drop').addEventListener('click', playerDrop);
-document.getElementById('rotate').addEventListener('click', () => playerRotate(1));
+
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('left')?.addEventListener('click', () => playerMove(-1));
   document.getElementById('right')?.addEventListener('click', () => playerMove(1));
