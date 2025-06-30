@@ -161,14 +161,19 @@ function playerReset() {
   player.pos.x = (arena[0].length / 2 | 0) - (player.matrix[0].length / 2 | 0);
 
   if (collide(arena, player)) {
-    // Game over
+    // Game Over
     arena.forEach(row => row.fill(0));
-    saveHighscore(player.score, elapsedTime);
+
+    const finalScore = player.score;
+    const finalTime = elapsedTime;
+
+    saveHighscore(finalScore, finalTime);
 
     Telegram.WebApp.sendData(JSON.stringify({
-      score: player.score,
-      time: elapsedTime,
+      score: finalScore,
+      time: finalTime,
     }));
+
     player.score = 0;
     updateScore();
     elapsedTime = 0;
