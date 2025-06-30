@@ -197,38 +197,6 @@ function saveHighscore(score, time) {
     }
   }
 }
-// Добавляем обработчик для кнопки "Поделиться результатом"
-function addShareButton() {
-  if (!isTelegramWebApp) return;
-
-  const shareBtn = document.createElement("button");
-  shareBtn.id = "share-result";
-  shareBtn.textContent = "📢 Поделиться результатом";
-  shareBtn.style.cssText = `
-    position: fixed;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    padding: 10px 20px;
-    background: #2481cc;
-    color: white;
-    border: none;
-    border-radius: 20px;
-    font-size: 16px;
-    cursor: pointer;
-    z-index: 100;
-  `;
-
-  shareBtn.addEventListener("click", () => {
-    const currentScore = player.score;
-    const currentTime = elapsedTime;
-    saveHighscore(currentScore, currentTime);
-  });
-
-  document.body.appendChild(shareBtn);
-}
-// Вызываем добавление кнопки при загрузке
-document.addEventListener("DOMContentLoaded", addShareButton);
 
 function startTimer() {
   elapsedTime = 0;
