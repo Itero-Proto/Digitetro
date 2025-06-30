@@ -186,7 +186,7 @@ function saveHighscore(score, time) {
     try {
       Telegram.WebApp.sendData(
         JSON.stringify({
-          game: "digitetro",
+          game: "Digitetris",
           score: score,
           lines: Math.floor(score / 10), // Примерное количество линий
           time: time,
