@@ -162,7 +162,6 @@ function playerReset() {
 
   if (collide(arena, player)) {
     // Game Over
-    console.log("Telegram WebApp?", typeof Telegram?.WebApp);
     arena.forEach(row => row.fill(0));
     const finalScore = player.score;
     const finalTime = elapsedTime;
