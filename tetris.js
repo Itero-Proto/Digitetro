@@ -188,13 +188,10 @@ function saveHighscore(score, time) {
         JSON.stringify({
           game: "Digitetris",
           score: score,
-          lines: Math.floor(score / 10), // Примерное количество линий
+          lines: Math.floor(score / 10),
           time: time,
         })
       );
-
-      // Опционально: закрыть WebApp после отправки
-      // Telegram.WebApp.close();
     } catch (e) {
       console.error("Ошибка отправки данных в Telegram:", e);
     }
