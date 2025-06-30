@@ -1,3 +1,4 @@
+let animationId = null;
 
 let elapsedTime = 0;
 let timerInterval = null;
@@ -170,24 +171,32 @@ function playerReset() {
 
   if (collide(arena, player)) {
     // Game Over
-    console.log("Telegram WebApp?", typeof Telegram?.WebApp);
     arena.forEach(row => row.fill(0));
     const finalScore = player.score;
     const finalTime = elapsedTime;
+
     saveHighscore(finalScore, finalTime);
 
-    Telegram.WebApp.sendData(JSON.stringify({
+    if (typeof Telegram?.WebApp?.sendData === "function") {
+      Telegram.WebApp.sendData(JSON.stringify({
+        score: finalScore,
+        time: finalTime,
+      }));
+    }
 
-      score: finalScore,
-      time: finalTime,
-    }));
+    // Показываем окно Game Over
+    document.getElementById("finalStats").innerText =
+      `Очки: ${finalScore}\nВремя: ${finalTime}с`;
+    document.getElementById("gameOverScreen").style.display = "block";
+    document.getElementById("controls").style.display = "none";
 
+    // Сброс
     player.score = 0;
     updateScore();
     elapsedTime = 0;
     clearInterval(timerInterval);
-  } else {
-    startTimer(); // начинается новая фигура, таймер идёт
+    cancelAnimationFrame(animationId); // Остановим игру
+    return;
   }
 }
 
@@ -260,7 +269,8 @@ function update(time = 0) {
   }
 
   draw();
-  requestAnimationFrame(update);
+  animationId = requestAnimationFrame(update);
+
 }
 
 document.addEventListener('keydown', event => {
@@ -277,6 +287,15 @@ document.addEventListener('keydown', event => {
   } else if (event.keyCode === 87) {
     playerRotate(1);
   }
+});
+
+document.getElementById("restartBtn").addEventListener("click", () => {
+  document.getElementById("gameOverScreen").style.display = "none";
+  document.getElementById("controls").style.display = "flex";
+
+  playerReset();
+  updateScore();
+  update();
 });
 
 document.getElementById('hardDrop').addEventListener('click', playerHardDrop);
