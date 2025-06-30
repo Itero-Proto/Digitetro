@@ -172,7 +172,6 @@ function playerReset() {
   }
 }
 
-// Модифицируем функцию saveHighscore
 function saveHighscore(score, time) {
   // Сохраняем в локальное хранилище
   const highscores = JSON.parse(localStorage.getItem("highscores") || "[]");
@@ -181,12 +180,11 @@ function saveHighscore(score, time) {
   const top10 = highscores.slice(0, 10);
   localStorage.setItem("highscores", JSON.stringify(top10));
 
-  // Если игра запущена в Telegram WebApp - отправляем результат
   if (isTelegramWebApp) {
     try {
       Telegram.WebApp.sendData(
         JSON.stringify({
-          game: "Digitetris",
+          game: "Digitetro",
           score: score,
           lines: Math.floor(score / 10),
           time: time,
