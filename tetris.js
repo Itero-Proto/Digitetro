@@ -1,19 +1,13 @@
-let gameOver = false;
+let elapsedTime = 0;
+let timerInterval = null;
 
 const canvas = document.getElementById('tetris');
 const context = canvas.getContext('2d');
 context.scale(20, 20);
 
-const scoreElement = document.getElementById('score');
-const restartBtn = document.getElementById('restartBtn');
-
-let timerInterval = null;
-let elapsedTime = 0;
-let animationId = null;
-
 function arenaSweep() {
   let rowCount = 1;
-  outer: for (let y = arena.length - 1; y >= 0; --y) {
+  outer: for (let y = arena.length - 1; y > 0; --y) {
     for (let x = 0; x < arena[y].length; ++x) {
       if (arena[y][x] === 0) {
         continue outer;
@@ -102,8 +96,10 @@ function drawMatrix(matrix, offset) {
   matrix.forEach((row, y) => {
     row.forEach((value, x) => {
       if (value !== 0) {
-        context.fillStyle = 'white';
-        context.fillRect(x + offset.x, y + offset.y, 1, 1);
+        context.fillStyle = colors[value];
+        context.fillRect(x + offset.x,
+          y + offset.y,
+          1, 1);
       }
     });
   });
@@ -128,17 +124,25 @@ function merge(arena, player) {
 }
 
 function playerDrop() {
-  if (gameOver) return; // <--- ❗ не продолжаем, если конец игры
-
   player.pos.y++;
   if (collide(arena, player)) {
     player.pos.y--;
     merge(arena, player);
     playerReset();
-    if (gameOver) return; // на случай, если конец игры произошёл в playerReset
     arenaSweep();
     updateScore();
   }
+  dropCounter = 0;
+}
+function playerHardDrop() {
+  while (!collide(arena, player)) {
+    player.pos.y++;
+  }
+  player.pos.y--; // последний шаг был лишним
+  merge(arena, player);
+  playerReset();
+  arenaSweep();
+  updateScore();
   dropCounter = 0;
 }
 
@@ -151,42 +155,52 @@ function playerMove(dir) {
 }
 
 function playerReset() {
-  const pieces = 'ILJOTSZ';
+  const pieces = 'TJLOSZI';
   player.matrix = createPiece(pieces[pieces.length * Math.random() | 0]);
   player.pos.y = 0;
   player.pos.x = (arena[0].length / 2 | 0) - (player.matrix[0].length / 2 | 0);
 
   if (collide(arena, player)) {
     // Game Over
+    console.log("Telegram WebApp?", typeof Telegram?.WebApp);
     arena.forEach(row => row.fill(0));
     const finalScore = player.score;
     const finalTime = elapsedTime;
-
     saveHighscore(finalScore, finalTime);
 
-    if (typeof Telegram?.WebApp?.sendData === "function") {
-      Telegram.WebApp.sendData(JSON.stringify({
-        score: finalScore,
-        time: finalTime,
-      }));
-    }
+    Telegram.WebApp.sendData(JSON.stringify({
 
-    document.getElementById("finalStats").innerText =
-      `Очки: ${finalScore}\nВремя: ${finalTime}с`;
-    document.getElementById("gameOverScreen").style.display = "block";
-    document.getElementById("controls").style.display = "none";
+      score: finalScore,
+      time: finalTime,
+    }));
 
     player.score = 0;
     updateScore();
     elapsedTime = 0;
     clearInterval(timerInterval);
-    cancelAnimationFrame(animationId);
-
-    gameOver = true; // <--- ❗ устанавливаем флаг
-    return;
+  } else {
+    startTimer(); // начинается новая фигура, таймер идёт
   }
 }
 
+function saveHighscore(score, time) {
+  const highscores = JSON.parse(localStorage.getItem('highscores') || '[]');
+  highscores.push({ score, time });
+  highscores.sort((a, b) => b.score - a.score);
+  const top10 = highscores.slice(0, 10);
+  localStorage.setItem('highscores', JSON.stringify(top10));
+}
+
+
+
+function startTimer() {
+  elapsedTime = 0;
+  if (timerInterval) clearInterval(timerInterval);
+  timerInterval = setInterval(() => {
+    elapsedTime++;
+    document.getElementById('time').innerText = 'Time: ' + elapsedTime + 's';
+  }, 1000);
+}
 
 function playerRotate(dir) {
   const pos = player.pos.x;
@@ -206,9 +220,16 @@ function playerRotate(dir) {
 function rotate(matrix, dir) {
   for (let y = 0; y < matrix.length; ++y) {
     for (let x = 0; x < y; ++x) {
-      [matrix[x][y], matrix[y][x]] = [matrix[y][x], matrix[x][y]];
+      [
+        matrix[x][y],
+        matrix[y][x],
+      ] = [
+          matrix[y][x],
+          matrix[x][y],
+        ];
     }
   }
+
   if (dir > 0) {
     matrix.forEach(row => row.reverse());
   } else {
@@ -216,29 +237,52 @@ function rotate(matrix, dir) {
   }
 }
 
-let dropCounter = 0;
-let dropInterval = 1000;
-let lastTime = 0;
+function updateScore() {
+  document.getElementById('score').innerText =
+    'Score: ' + player.score;
+}
 
 function update(time = 0) {
   const deltaTime = time - lastTime;
   lastTime = time;
+
   dropCounter += deltaTime;
   if (dropCounter > dropInterval) {
     playerDrop();
   }
 
   draw();
-  animationId = requestAnimationFrame(update);
+  requestAnimationFrame(update);
 }
 
-function updateScore() {
-  scoreElement.innerText = 'Score: ' + player.score;
-}
+document.addEventListener('keydown', event => {
+  if (event.keyCode === 37) {
+    playerMove(-1);
+  } else if (event.keyCode === 39) {
+    playerMove(1);
+  } else if (event.keyCode === 40) {
+    playerDrop();
+  } else if (event.keyCode === 32) {
+    playerHardDrop(); // пробел
+  } else if (event.keyCode === 81) {
+    playerRotate(-1);
+  } else if (event.keyCode === 87) {
+    playerRotate(1);
+  }
+});
 
-function saveHighscore(score, time) {
-  // Место для возможного локального сохранения
-}
+document.getElementById('hardDrop').addEventListener('click', playerHardDrop);
+
+const colors = [
+  null,
+  '#FF0D72',
+  '#0DC2FF',
+  '#0DFF72',
+  '#F538FF',
+  '#FF8E0D',
+  '#FFE138',
+  '#3877FF',
+];
 
 const arena = createMatrix(12, 20);
 
@@ -248,31 +292,17 @@ const player = {
   score: 0,
 };
 
-document.getElementById("left").addEventListener("click", () => playerMove(-1));
-document.getElementById("right").addEventListener("click", () => playerMove(1));
-document.getElementById("drop").addEventListener("click", () => playerDrop());
-document.getElementById("rotate").addEventListener("click", () => playerRotate(1));
-document.getElementById("hardDrop").addEventListener("click", () => {
-  while (!collide(arena, player)) {
-    player.pos.y++;
-  }
-  player.pos.y--;
-  playerDrop();
-});
+let dropCounter = 0;
+let dropInterval = 1000;
 
-restartBtn.addEventListener("click", () => {
-  document.getElementById("gameOverScreen").style.display = "none";
-  document.getElementById("controls").style.display = "flex";
-
-  gameOver = false; // <--- ❗ сбрасываем флаг
-  playerReset();
-  updateScore();
-  update();
-  timerInterval = setInterval(() => elapsedTime++, 1000);
-});
-
+let lastTime = 0;
 
 playerReset();
 updateScore();
 update();
-timerInterval = setInterval(() => elapsedTime++, 1000);
+
+// Touch controls
+document.getElementById('left').addEventListener('click', () => playerMove(-1));
+document.getElementById('right').addEventListener('click', () => playerMove(1));
+document.getElementById('drop').addEventListener('click', playerDrop);
+document.getElementById('rotate').addEventListener('click', () => playerRotate(1));
