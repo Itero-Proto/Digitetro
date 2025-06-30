@@ -1,5 +1,13 @@
+
 let elapsedTime = 0;
 let timerInterval = null;
+// Инициализация Telegram WebApp (обязательна для мобильных)
+if (typeof Telegram !== 'undefined' && Telegram.WebApp) {
+  Telegram.WebApp.ready();
+  console.log("✅ Telegram WebApp инициализирован");
+} else {
+  console.log("⚠️ Telegram WebApp недоступен");
+}
 
 const canvas = document.getElementById('tetris');
 const context = canvas.getContext('2d');
