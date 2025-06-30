@@ -1,8 +1,11 @@
+// Добавьте в начало файла проверку на WebApp
+const isTelegramWebApp = typeof Telegram !== "undefined" && Telegram.WebApp;
+
 let elapsedTime = 0;
 let timerInterval = null;
 
-const canvas = document.getElementById('tetris');
-const context = canvas.getContext('2d');
+const canvas = document.getElementById("tetris");
+const context = canvas.getContext("2d");
 context.scale(20, 20);
 
 function arenaSweep() {
@@ -28,9 +31,7 @@ function collide(arena, player) {
   const o = player.pos;
   for (let y = 0; y < m.length; ++y) {
     for (let x = 0; x < m[y].length; ++x) {
-      if (m[y][x] !== 0 &&
-        (arena[y + o.y] &&
-          arena[y + o.y][x + o.x]) !== 0) {
+      if (m[y][x] !== 0 && (arena[y + o.y] && arena[y + o.y][x + o.x]) !== 0) {
         return true;
       }
     }
@@ -47,43 +48,43 @@ function createMatrix(w, h) {
 }
 
 function createPiece(type) {
-  if (type === 'T') {
+  if (type === "T") {
     return [
       [0, 0, 0],
       [1, 1, 1],
       [0, 1, 0],
     ];
-  } else if (type === 'O') {
+  } else if (type === "O") {
     return [
       [2, 2],
       [2, 2],
     ];
-  } else if (type === 'L') {
+  } else if (type === "L") {
     return [
       [0, 3, 0],
       [0, 3, 0],
       [0, 3, 3],
     ];
-  } else if (type === 'J') {
+  } else if (type === "J") {
     return [
       [0, 4, 0],
       [0, 4, 0],
       [4, 4, 0],
     ];
-  } else if (type === 'I') {
+  } else if (type === "I") {
     return [
       [0, 5, 0, 0],
       [0, 5, 0, 0],
       [0, 5, 0, 0],
       [0, 5, 0, 0],
     ];
-  } else if (type === 'S') {
+  } else if (type === "S") {
     return [
       [0, 6, 6],
       [6, 6, 0],
       [0, 0, 0],
     ];
-  } else if (type === 'Z') {
+  } else if (type === "Z") {
     return [
       [7, 7, 0],
       [0, 7, 7],
@@ -97,16 +98,14 @@ function drawMatrix(matrix, offset) {
     row.forEach((value, x) => {
       if (value !== 0) {
         context.fillStyle = colors[value];
-        context.fillRect(x + offset.x,
-          y + offset.y,
-          1, 1);
+        context.fillRect(x + offset.x, y + offset.y, 1, 1);
       }
     });
   });
 }
 
 function draw() {
-  context.fillStyle = '#000';
+  context.fillStyle = "#000";
   context.fillRect(0, 0, canvas.width, canvas.height);
 
   drawMatrix(arena, { x: 0, y: 0 });
@@ -146,7 +145,6 @@ function playerHardDrop() {
   dropCounter = 0;
 }
 
-
 function playerMove(dir) {
   player.pos.x += dir;
   if (collide(arena, player)) {
@@ -155,14 +153,15 @@ function playerMove(dir) {
 }
 
 function playerReset() {
-  const pieces = 'TJLOSZI';
-  player.matrix = createPiece(pieces[pieces.length * Math.random() | 0]);
+  const pieces = "TJLOSZI";
+  player.matrix = createPiece(pieces[(pieces.length * Math.random()) | 0]);
   player.pos.y = 0;
-  player.pos.x = (arena[0].length / 2 | 0) - (player.matrix[0].length / 2 | 0);
+  player.pos.x =
+    ((arena[0].length / 2) | 0) - ((player.matrix[0].length / 2) | 0);
 
   if (collide(arena, player)) {
     // Game over
-    arena.forEach(row => row.fill(0));
+    arena.forEach((row) => row.fill(0));
     saveHighscore(player.score, elapsedTime);
     player.score = 0;
     updateScore();
@@ -173,21 +172,73 @@ function playerReset() {
   }
 }
 
+// Модифицируем функцию saveHighscore
 function saveHighscore(score, time) {
-  const highscores = JSON.parse(localStorage.getItem('highscores') || '[]');
+  // Сохраняем в локальное хранилище
+  const highscores = JSON.parse(localStorage.getItem("highscores") || "[]");
   highscores.push({ score, time });
   highscores.sort((a, b) => b.score - a.score);
   const top10 = highscores.slice(0, 10);
-  localStorage.setItem('highscores', JSON.stringify(top10));
-}
+  localStorage.setItem("highscores", JSON.stringify(top10));
 
+  // Если игра запущена в Telegram WebApp - отправляем результат
+  if (isTelegramWebApp) {
+    try {
+      Telegram.WebApp.sendData(
+        JSON.stringify({
+          game: "digitetro",
+          score: score,
+          lines: Math.floor(score / 10), // Примерное количество линий
+          time: time,
+        })
+      );
+
+      // Опционально: закрыть WebApp после отправки
+      // Telegram.WebApp.close();
+    } catch (e) {
+      console.error("Ошибка отправки данных в Telegram:", e);
+    }
+  }
+}
+// Добавляем обработчик для кнопки "Поделиться результатом"
+function addShareButton() {
+  if (!isTelegramWebApp) return;
+
+  const shareBtn = document.createElement("button");
+  shareBtn.id = "share-result";
+  shareBtn.textContent = "📢 Поделиться результатом";
+  shareBtn.style.cssText = `
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 10px 20px;
+    background: #2481cc;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    font-size: 16px;
+    cursor: pointer;
+    z-index: 100;
+  `;
+
+  shareBtn.addEventListener("click", () => {
+    const currentScore = player.score;
+    const currentTime = elapsedTime;
+    saveHighscore(currentScore, currentTime);
+  });
+
+  document.body.appendChild(shareBtn);
+}
+// Вызываем добавление кнопки при загрузке
+document.addEventListener("DOMContentLoaded", addShareButton);
 
 function startTimer() {
   elapsedTime = 0;
   if (timerInterval) clearInterval(timerInterval);
   timerInterval = setInterval(() => {
     elapsedTime++;
-    document.getElementById('time').innerText = 'Time: ' + elapsedTime + 's';
+    document.getElementById("time").innerText = "Time: " + elapsedTime + "s";
   }, 1000);
 }
 
@@ -209,26 +260,19 @@ function playerRotate(dir) {
 function rotate(matrix, dir) {
   for (let y = 0; y < matrix.length; ++y) {
     for (let x = 0; x < y; ++x) {
-      [
-        matrix[x][y],
-        matrix[y][x],
-      ] = [
-          matrix[y][x],
-          matrix[x][y],
-        ];
+      [matrix[x][y], matrix[y][x]] = [matrix[y][x], matrix[x][y]];
     }
   }
 
   if (dir > 0) {
-    matrix.forEach(row => row.reverse());
+    matrix.forEach((row) => row.reverse());
   } else {
     matrix.reverse();
   }
 }
 
 function updateScore() {
-  document.getElementById('score').innerText =
-    'Score: ' + player.score;
+  document.getElementById("score").innerText = "Score: " + player.score;
 }
 
 function update(time = 0) {
@@ -244,7 +288,7 @@ function update(time = 0) {
   requestAnimationFrame(update);
 }
 
-document.addEventListener('keydown', event => {
+document.addEventListener("keydown", (event) => {
   if (event.keyCode === 37) {
     playerMove(-1);
   } else if (event.keyCode === 39) {
@@ -260,17 +304,17 @@ document.addEventListener('keydown', event => {
   }
 });
 
-document.getElementById('hardDrop').addEventListener('click', playerHardDrop);
+document.getElementById("hardDrop").addEventListener("click", playerHardDrop);
 
 const colors = [
   null,
-  '#FF0D72',
-  '#0DC2FF',
-  '#0DFF72',
-  '#F538FF',
-  '#FF8E0D',
-  '#FFE138',
-  '#3877FF',
+  "#FF0D72",
+  "#0DC2FF",
+  "#0DFF72",
+  "#F538FF",
+  "#FF8E0D",
+  "#FFE138",
+  "#3877FF",
 ];
 
 const arena = createMatrix(12, 20);
@@ -291,7 +335,9 @@ updateScore();
 update();
 
 // Touch controls
-document.getElementById('left').addEventListener('click', () => playerMove(-1));
-document.getElementById('right').addEventListener('click', () => playerMove(1));
-document.getElementById('drop').addEventListener('click', playerDrop);
-document.getElementById('rotate').addEventListener('click', () => playerRotate(1));
+document.getElementById("left").addEventListener("click", () => playerMove(-1));
+document.getElementById("right").addEventListener("click", () => playerMove(1));
+document.getElementById("drop").addEventListener("click", playerDrop);
+document
+  .getElementById("rotate")
+  .addEventListener("click", () => playerRotate(1));
