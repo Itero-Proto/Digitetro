@@ -306,3 +306,8 @@ document.getElementById('left').addEventListener('click', () => playerMove(-1));
 document.getElementById('right').addEventListener('click', () => playerMove(1));
 document.getElementById('drop').addEventListener('click', playerDrop);
 document.getElementById('rotate').addEventListener('click', () => playerRotate(1));
+if (typeof Telegram?.WebApp !== "undefined") {
+  document.body.insertAdjacentHTML('beforeend', "<div style='position:fixed;top:10px;right:10px;color:lime;'>🟢 Telegram подключён</div>");
+} else {
+  document.body.insertAdjacentHTML('beforeend', "<div style='position:fixed;top:10px;right:10px;color:red;'>🔴 Нет Telegram API</div>");
+}
