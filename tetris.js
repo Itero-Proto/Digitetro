@@ -164,6 +164,11 @@ function playerReset() {
     // Game over
     arena.forEach(row => row.fill(0));
     saveHighscore(player.score, elapsedTime);
+
+    Telegram.WebApp.sendData(JSON.stringify({
+      score: player.score,
+      time: elapsedTime,
+    }));
     player.score = 0;
     updateScore();
     elapsedTime = 0;
@@ -180,6 +185,7 @@ function saveHighscore(score, time) {
   const top10 = highscores.slice(0, 10);
   localStorage.setItem('highscores', JSON.stringify(top10));
 }
+
 
 
 function startTimer() {
