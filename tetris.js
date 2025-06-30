@@ -1,3 +1,5 @@
+let gameOver = false;
+
 const canvas = document.getElementById('tetris');
 const context = canvas.getContext('2d');
 context.scale(20, 20);
@@ -33,8 +35,8 @@ function collide(arena, player) {
   for (let y = 0; y < m.length; ++y) {
     for (let x = 0; x < m[y].length; ++x) {
       if (m[y][x] !== 0 &&
-          (arena[y + o.y] &&
-           arena[y + o.y][x + o.x]) !== 0) {
+        (arena[y + o.y] &&
+          arena[y + o.y][x + o.x]) !== 0) {
         return true;
       }
     }
@@ -111,7 +113,7 @@ function draw() {
   context.fillStyle = '#000';
   context.fillRect(0, 0, canvas.width, canvas.height);
 
-  drawMatrix(arena, {x: 0, y: 0});
+  drawMatrix(arena, { x: 0, y: 0 });
   drawMatrix(player.matrix, player.pos);
 }
 
@@ -126,16 +128,20 @@ function merge(arena, player) {
 }
 
 function playerDrop() {
+  if (gameOver) return; // <--- ❗ не продолжаем, если конец игры
+
   player.pos.y++;
   if (collide(arena, player)) {
     player.pos.y--;
     merge(arena, player);
     playerReset();
+    if (gameOver) return; // на случай, если конец игры произошёл в playerReset
     arenaSweep();
     updateScore();
   }
   dropCounter = 0;
 }
+
 
 function playerMove(dir) {
   player.pos.x += dir;
@@ -175,9 +181,12 @@ function playerReset() {
     elapsedTime = 0;
     clearInterval(timerInterval);
     cancelAnimationFrame(animationId);
+
+    gameOver = true; // <--- ❗ устанавливаем флаг
     return;
   }
 }
+
 
 function playerRotate(dir) {
   const pos = player.pos.x;
@@ -234,7 +243,7 @@ function saveHighscore(score, time) {
 const arena = createMatrix(12, 20);
 
 const player = {
-  pos: {x: 0, y: 0},
+  pos: { x: 0, y: 0 },
   matrix: null,
   score: 0,
 };
@@ -255,11 +264,13 @@ restartBtn.addEventListener("click", () => {
   document.getElementById("gameOverScreen").style.display = "none";
   document.getElementById("controls").style.display = "flex";
 
+  gameOver = false; // <--- ❗ сбрасываем флаг
   playerReset();
   updateScore();
   update();
   timerInterval = setInterval(() => elapsedTime++, 1000);
 });
+
 
 playerReset();
 updateScore();
