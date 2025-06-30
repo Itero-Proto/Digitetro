@@ -12,6 +12,7 @@
   <h1>Tetris</h1>
   <canvas id="tetris" width="240" height="400"></canvas>
   <div id="score">Score: 0</div>
+
   <div id="controls">
     <button id="left">⬅️</button>
     <button id="rotate">🔄</button>
@@ -19,6 +20,13 @@
     <button id="drop">⬇️</button>
     <button id="hardDrop">⏬</button>
   </div>
+  
+  <div id="gameOverScreen" style="display:none; padding: 20px;">
+  <h2>💀 Game Over</h2>
+  <p id="finalStats"></p>
+  <button id="restartBtn">🔁 Сначала</button>
+</div>
+
   <script>
     window.addEventListener("load", () => {
       const statusDiv = document.getElementById("webapp-status");
