@@ -161,18 +161,9 @@ function playerReset() {
   player.pos.x = (arena[0].length / 2 | 0) - (player.matrix[0].length / 2 | 0);
 
   if (collide(arena, player)) {
-    // Game Over
+    // Game over
     arena.forEach(row => row.fill(0));
-    const finalScore = player.score;
-    const finalTime = elapsedTime;
-    saveHighscore(finalScore, finalTime);
-
-    Telegram.WebApp.sendData(JSON.stringify({
-
-      score: finalScore,
-      time: finalTime,
-    }));
-
+    saveHighscore(player.score, elapsedTime);
     player.score = 0;
     updateScore();
     elapsedTime = 0;
@@ -189,7 +180,6 @@ function saveHighscore(score, time) {
   const top10 = highscores.slice(0, 10);
   localStorage.setItem('highscores', JSON.stringify(top10));
 }
-
 
 
 function startTimer() {
