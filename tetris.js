@@ -254,23 +254,6 @@ function update(time = 0) {
   draw();
   requestAnimationFrame(update);
 }
-function showTelegramStatus() {
-  const box = document.createElement("div");
-  box.style.position = "absolute";
-  box.style.top = "10px";
-  box.style.left = "10px";
-  box.style.padding = "5px 10px";
-  box.style.zIndex = "1000";
-  box.style.fontFamily = "sans-serif";
-  box.style.fontSize = "14px";
-  box.style.borderRadius = "6px";
-  box.style.backgroundColor = Telegram?.WebApp ? "#0f0" : "#f00";
-  box.style.color = "#000";
-  box.textContent = Telegram?.WebApp ? "🟢 Telegram подключён" : "🔴 Нет Telegram API";
-  document.body.appendChild(box);
-}
-
-showTelegramStatus();
 
 document.addEventListener('keydown', event => {
   if (event.keyCode === 37) {
@@ -323,3 +306,4 @@ document.getElementById('left').addEventListener('click', () => playerMove(-1));
 document.getElementById('right').addEventListener('click', () => playerMove(1));
 document.getElementById('drop').addEventListener('click', playerDrop);
 document.getElementById('rotate').addEventListener('click', () => playerRotate(1));
+
